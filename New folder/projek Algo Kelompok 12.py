@@ -7,14 +7,11 @@ DATA_ADMIN_DIR = os.path.join(BASE_DIR, "data_admin")
 os.makedirs(DATA_ADMIN_DIR, exist_ok=True)
 
 def admin_file(name):
-    """Path eksplisit di folder data_admin (untuk menyimpan file baru)."""
+
     return os.path.join(DATA_ADMIN_DIR, name)
 
 def file_in_dirs(name, prefer_dirs=None):
-    """
-    Cari file 'name' di beberapa folder (urut). 
-    Jika ditemukan, kembalikan path; jika tidak, kembalikan path default di data_admin.
-    """
+   
     dirs = prefer_dirs or [DATA_ADMIN_DIR]
     for d in dirs:
         p = os.path.join(d, name)
@@ -46,14 +43,11 @@ def read_all_users(path=PENGGUNA_FILE):
 
 def append_user(username, password, role, path=PENGGUNA_FILE):
     ensure_user_file(path)
-    # append row
     with open(path, 'a', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow([username, password, role])
 
-# --- mulai tambahan: fungsi manajemen pengguna untuk admin ---
 def write_all_users(users, path=PENGGUNA_FILE):
-    """Tulis ulang semua pengguna ke CSV (header + rows)."""
     ensure_user_file(path)
     with open(path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -62,11 +56,6 @@ def write_all_users(users, path=PENGGUNA_FILE):
             writer.writerow([usn, meta.get('password',''), meta.get('role','user')])
 
 def delete_user_account(username, path=PENGGUNA_FILE):
-    """
-    Hapus satu user. Proteksi:
-    - Tidak boleh hapus user yang sedang login.
-    - Jika target adalah admin, minta konfirmasi khusus.
-    """
     users = read_all_users(path)
     if username not in users:
         return False, "User tidak ditemukan."
@@ -77,24 +66,22 @@ def delete_user_account(username, path=PENGGUNA_FILE):
         confirm = input(f"'{username}' berperan ADMIN. Ketik 'DELETE-ADMIN' untuk konfirmasi penghapusan: ").strip()
         if confirm != 'DELETE-ADMIN':
             return False, "Konfirmasi penghapusan admin dibatalkan."
-    # hapus dan simpan
     del users[username]
     write_all_users(users, path)
     return True, f"User '{username}' berhasil dihapus."
-# --- selesai tambahan ---
+
 
 
 pengguna_sekarang = None
 peran_sekarang = None
 
 def clear_screen():
-    # bersihkan terminal agar tampilan tidak tumpang tindih
     if os.name == 'nt':
         os.system('cls')
     else:
         os.system('clear')
 
-# Tambahkan utilitas umum untuk memastikan CSV dengan header
+
 def ensure_csv(path, headers):
     """Buat file CSV dengan header bila belum ada atau kosong."""
     if not os.path.exists(path) or os.path.getsize(path) == 0:
@@ -156,12 +143,7 @@ def halaman_utama():
             input("Tekan Enter untuk melanjutkan...")
 
 def load_products(path=produk_path):
-    """
-    Baca produk dari produk.csv, tampilkan daftar ke layar, dan kembalikan list dict.
-    Memperbaiki:
-    - Menampilkan pesan bila tidak ada produk
-    """
-    # pastikan file ada dengan header minimal (tidak menimpa jika sudah ada)
+   
     ensure_csv(path, ['id','nama_produk','harga','stok', ])
 
     products = []
@@ -172,10 +154,10 @@ def load_products(path=produk_path):
     with open(path, newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for r in reader:
-            # baca value dengan fallback ke beberapa nama kolom yang mungkin ada
+           
             pid = (r.get('id') or '').strip()
             nama = (r.get('nama_produk') or r.get('nama') or '').strip()
-            # harga & stok: aman convert ke int dengan fallback 0
+         
             try:
                 harga = int((r.get('harga') or r.get('price') or 0))
             except Exception:
@@ -193,7 +175,7 @@ def load_products(path=produk_path):
             }
             products.append(prod)
 
-    # tampilkan daftar produk agar pemanggilan load_products() tanpa print tetap terlihat
+
     if not products:
         print("Belum ada produk terdaftar di produk.csv.")
     else:
@@ -226,7 +208,7 @@ def user_menu():
             input("Tekan Enter untuk kembali...")
         elif cmd == '4':
             logout()
-            return  # kembali ke halaman_utama
+            return 
         else:
             print("Pilihan tidak valid.")
             input("Tekan Enter untuk mencoba lagi...")
@@ -275,7 +257,7 @@ def admin_menu():
             input("Tekan Enter untuk kembali...")
         elif cmd == '8':
             logout()
-            return  # kembali ke halaman_utama
+            return  
         else:
             print("Pilihan tidak valid.")
             input("Tekan Enter untuk mencoba lagi...")
@@ -284,10 +266,10 @@ def daftarkan_akun():
     print('='*10, "Masukkan", '='*10)
     ensure_user_file(PENGGUNA_FILE)
 
-    # baca pengguna yang sudah ada untuk cek duplikat
+  
     existing = read_all_users()
 
-    # minta username unik
+
     while True:
         username = input("Masukkan Username: ").strip()
         if not username:
@@ -298,7 +280,7 @@ def daftarkan_akun():
             continue
         break
 
-    # minta password dan role
+
     while True:
         password = input("Masukkan Password: ").strip()
         if not password:
@@ -308,7 +290,6 @@ def daftarkan_akun():
 
     role = input("Masukkan Role (admin/user) [default:user]: ").strip() or 'user'
 
-    # simpan pengguna baru
     append_user(username, password, role, PENGGUNA_FILE)
     print("Akun berhasil didaftarkan.")
 
@@ -345,7 +326,7 @@ def riwayat_transaksi():
         found = False
         for row in reader:
             if pengguna_sekarang and row.get('username') != pengguna_sekarang:
-                continue  # hanya tampilkan transaksi user saat ini
+                continue  
             found = True
             print(f"- Waktu: {row.get('waktu','')}  Produk: {row.get('nama','')} x{row.get('stok','')}  Harga: Rp{row.get('harga','')}  Total: Rp{row.get('total','')} ")
         if not found:
@@ -424,7 +405,7 @@ def transaksi():
         writer.writerow([waktu, username, produk['id'], produk['nama'], stok, produk['harga'], total])
 
 
-    # tulis ulang produk.csv dengan header yang konsisten (baru)
+
     with open(produk_path, 'w', newline='', encoding='utf-8') as f:
         fieldnames = ['id','nama_produk','harga','stok', ]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -442,7 +423,6 @@ def transaksi():
 
 def tambahkan_produk():
     ensure_csv(produk_path, ['id','nama_produk','harga','stok', ])
-    # gunakan DictWriter agar kolom tersimpan sesuai header
     with open(produk_path, 'a', newline='', encoding='utf-8') as f:
         fieldnames = ['id','nama_produk','harga','stok', ]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -541,7 +521,6 @@ def modifikasi_produk(path=produk_path):
         except ValueError:
             print("Stok tidak valid, perubahan stok diabaikan.")
 
-    # simpan kembali
     with open(path, 'w', newline='', encoding='utf-8') as f:
         fieldnames = ['id','nama_produk','harga','stok', ]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -556,11 +535,10 @@ def modifikasi_produk(path=produk_path):
 
     print(f"Produk '{target.get('nama_produk')}' (ID:{target.get('id')}) berhasil diperbarui.")
 
-# === TAMBAHAN: fungsi hapus produk tertentu ===
 def hapus_produk(path=produk_path):
     """Hapus produk tertentu berdasarkan ID atau nama dari produk.csv."""
     ensure_csv(path, ['id','nama_produk','harga','stok', ])
-    # baca semua produk
+
     rows = []
     with open(path, newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -591,7 +569,6 @@ def hapus_produk(path=produk_path):
         print("Penghapusan dibatalkan.")
         return
 
-    # hapus dan tulis ulang CSV
     del rows[idx]
     with open(path, 'w', newline='', encoding='utf-8') as f:
         fieldnames = ['id','nama_produk','harga','stok', ]
@@ -608,10 +585,9 @@ def hapus_produk(path=produk_path):
     print("Produk berhasil dihapus.")
 
 def cek_kelembaban_dan_cuaca():
-    """Meminta input manual untuk kelembaban tanah dan cuaca."""
+    
     print("--- Input Manual Data Irigasi ---")
 
-    # Input Kelembaban Tanah
     while True:
         try:
             kelembaban = int(input("Masukkan tingkat kelembaban tanah (0-100, di mana 0 sangat kering): "))
@@ -622,7 +598,7 @@ def cek_kelembaban_dan_cuaca():
         except ValueError:
             print("⚠️ Masukkan angka yang valid.")
 
-    # Input Status Cuaca
+
     while True:
         cuaca_input = input("Apakah hari ini turun hujan? (ya/tidak): ").lower()
         if cuaca_input in ['ya', 'tidak']:
@@ -635,7 +611,7 @@ def cek_kelembaban_dan_cuaca():
 
 def tentukan_irigasi(kelembaban, hujan):
     """Menentukan rekomendasi irigasi berdasarkan input."""
-    # Definisikan batas kritis kelembaban (misalnya, di bawah 40% perlu air)
+    
     BATAS_KERING = 40
 
     print("\n--- Analisis dan Rekomendasi ---")
@@ -666,7 +642,7 @@ def irrigation_menu():
         else:
             print("Pilihan tidak valid.")
             input("Tekan Enter untuk mencoba lagi...")
-# panggil menu utama setelah semua fungsi didefinisikan
+
 if __name__ == "__main__":
     halaman_utama()
 
