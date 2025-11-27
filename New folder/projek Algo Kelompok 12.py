@@ -19,11 +19,11 @@ def file_in_dirs(name, prefer_dirs=None):
             return p
     return os.path.join(DATA_ADMIN_DIR, name)
 
-# Gunakan file_in_dirs untuk menentukan path yang dipakai program
+
 PENGGUNA_FILE = file_in_dirs('pengguna.csv')
 TRANSAKSI_FILE = file_in_dirs('transaksi.csv')
 produk_path = file_in_dirs('produk.csv')
-# ---- selesai perubahan ----
+
 def ensure_user_file(path=PENGGUNA_FILE):  
     if not os.path.exists(path):
         with open(path, 'w', newline='', encoding='utf-8') as f:
@@ -434,7 +434,7 @@ def tambahkan_produk():
         nama_produk = input("Masukkan nama produk: ").strip()
         harga_produk = input("Masukkan harga produk: ").strip()
         stok_produk = input("Masukkan stok produk: ").strip()
-        # validasi sederhana angka
+    
         try:
             harga_v = int(harga_produk)
             stok_v = int(stok_produk)
@@ -451,12 +451,7 @@ def tambahkan_produk():
 
 
 def modifikasi_produk(path=produk_path):
-    """
-    Edit produk di produk.csv.
-    - Pilih produk berdasarkan ID atau nama
-    - Kosongkan input untuk mempertahankan nilai lama
-    - Validasi sederhana untuk harga & stok
-    """
+    
     ensure_csv(path, ['id','nama_produk','harga','stok', ])
     prods = []
     try:
@@ -536,7 +531,7 @@ def modifikasi_produk(path=produk_path):
     print(f"Produk '{target.get('nama_produk')}' (ID:{target.get('id')}) berhasil diperbarui.")
 
 def hapus_produk(path=produk_path):
-    """Hapus produk tertentu berdasarkan ID atau nama dari produk.csv."""
+   
     ensure_csv(path, ['id','nama_produk','harga','stok', ])
 
     rows = []
@@ -610,7 +605,7 @@ def cek_kelembaban_dan_cuaca():
     return kelembaban, cuaca_hujan
 
 def tentukan_irigasi(kelembaban, hujan):
-    """Menentukan rekomendasi irigasi berdasarkan input."""
+   
     
     BATAS_KERING = 40
 
@@ -626,7 +621,7 @@ def tentukan_irigasi(kelembaban, hujan):
         print("🛑 Rekomendasi: TIDAK PERLU IRIGASI saat ini. Periksa lagi nanti.")
 
 def irrigation_menu():
-    """Menu sederhana untuk menjalankan cek irigasi manual (integrasi ke admin_menu)."""
+   
     while True:
         clear_screen()
         print("=== Menu Irigasi Manual Sederhana ===")
