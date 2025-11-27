@@ -168,12 +168,21 @@ def rekomendasi_pemesanan():
     for produk in produk_rendah:
         # Rekomendasi pesan 2x batas minimum
         jumlah_pesan = produk["batas_minimum"] * 2
+        
+        # Tentukan prioritas berdasarkan level stok
+        if produk["jumlah"] == 0:
+            prioritas = "TINGGI"
+        elif produk["jumlah"] < produk["batas_minimum"] / 2:
+            prioritas = "SEDANG"
+        else:
+            prioritas = "RENDAH"
+        
         rekomendasi.append({
             "nama": produk["nama"],
             "stok_saat_ini": produk["jumlah"],
             "rekomendasi_pesan": jumlah_pesan,
             "satuan": produk["satuan"],
-            "prioritas": "TINGGI" if produk["jumlah"] == 0 else "SEDANG" if produk["jumlah"] < produk["batas_minimum"] / 2 else "RENDAH"
+            "prioritas": prioritas
         })
     
     # Urutkan berdasarkan prioritas
