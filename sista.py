@@ -125,7 +125,7 @@ def calculate_irrigation(crop_type, soil_type, weather, area):
         area: Luas lahan (m²)
     
     Returns:
-        tuple: (total_water_needed, recommendation)
+        dict: Dictionary containing water requirements and recommendations
     """
     base_water = CROP_WATER_REQUIREMENTS[crop_type]["base"]
     soil_factor = SOIL_FACTORS[soil_type]["factor"]
@@ -208,12 +208,18 @@ def irrigation_menu():
 
 # Data stok (menggunakan list sebagai database sederhana)
 stock_data = []
-stock_id_counter = [0]  # Menggunakan list agar bisa dimodifikasi di dalam fungsi
+_stock_id_counter = 0  # Counter untuk ID stok
 
 def generate_stock_id():
     """Menghasilkan ID stok baru."""
-    stock_id_counter[0] += 1
-    return f"STK{stock_id_counter[0]:04d}"
+    global _stock_id_counter
+    _stock_id_counter += 1
+    return f"STK{_stock_id_counter:04d}"
+
+def reset_stock_id_counter():
+    """Reset counter untuk keperluan testing."""
+    global _stock_id_counter
+    _stock_id_counter = 0
 
 def add_stock():
     """Menambahkan stok baru."""

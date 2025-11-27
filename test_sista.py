@@ -10,7 +10,7 @@ from sista import (
     WEATHER_FACTORS,
     stock_data,
     generate_stock_id,
-    stock_id_counter
+    reset_stock_id_counter
 )
 
 
@@ -98,7 +98,7 @@ class TestStockManagement(unittest.TestCase):
     def setUp(self):
         """Clear stock data before each test."""
         stock_data.clear()
-        stock_id_counter[0] = 0
+        reset_stock_id_counter()
     
     def test_generate_stock_id(self):
         """Test stock ID generation."""
